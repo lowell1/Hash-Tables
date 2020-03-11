@@ -15,7 +15,6 @@ class HashTable:
     def __init__(self, capacity):
         self.capacity = capacity  # Number of buckets in the hash table
         self.storage = [None] * capacity
-        self.linked_list = None
 
     def _hash(self, key):
         '''
@@ -53,21 +52,15 @@ class HashTable:
 
         Fill this in.
         '''
-        
-
         idx = self._hash_mod(key)
-            
-        node = LinkedPair(key, value)
-        node.next = self.linked_list
-        self.linked_list = node
-
+        
         if self.storage[idx]:
             print("warning index collision")
-        else:
-            self.storage[idx] = node
+
+        node = LinkedPair(key, value)
         
-
-
+        node.next = self.storage[idx]
+        self.storage[idx] = node
 
     def remove(self, key):
         '''
@@ -78,17 +71,14 @@ class HashTable:
         Fill this in.
         '''
         idx = self._hash_mod(key)
-
-        # self.storage[idx]
-
-        cur_node = self.linked_list
+        cur_node = self.storage[idx]
 
         if cur_node is None:
             print("key not found")
             return
 
         if cur_node.key == key:
-            self.linked_list = cur_node.next
+            self.storage[idx] = cur_node.next
             return
 
         while cur_node.next:
@@ -110,13 +100,10 @@ class HashTable:
         Fill this in.
         '''
         idx = self._hash_mod(key)
+        node = self.storage[idx]
 
-        # if self.storage[idx] == None:
-        #     return None
-
-        # node = self.storage[idx]
-
-        node = self.linked_list
+        if node == None:
+            return None
 
         while node:
             if node.key == key:
@@ -131,9 +118,15 @@ class HashTable:
 
         Fill this in.
         '''
-        self.storage += [None] * self.capacity
-        self.capacity *= 2
+        old_storage = self.storage[:]
 
+        self.capacity *= 2
+        self.storage = [None] * self.capacity
+
+        for cur_node in old_storage :
+            while cur_node:
+                self.insert(cur_node.key, cur_node.value)
+                cur_node = cur_node.next
 
 if __name__ == "__main__":
     ht = HashTable(2)
